@@ -1,22 +1,15 @@
-name: Dev
+name: release
 
 on:
   push:
-    branches: [dev]
-
-  schedule:
-    - cron: "30 18 * * *" # run at 00:00 AM IST
+    tags:
+      - "v*"
 
 jobs:
   g8:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout csw repo
-        uses: actions/checkout@v2
-        with:
-          repository: tmtsoftware/csw
-
       - uses: olafurpg/setup-scala@v5
         with:
           java-version: adopt@1.11
@@ -37,9 +30,6 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-sbt-
 
-      - name: Publish Local
-        run: sbt clean publishLocal
-
       - name: Install CS native
         run: |
           curl -fLo cs https://git.io/coursier-cli-linux
@@ -55,8 +45,8 @@ jobs:
 
       - name: Giter8 Compile
         run: |
-          g8 tmtsoftware/csw.g8 --branch dev --name=galil --csw_version='0.1.0-SNAPSHOT'
-          cd galil 
+          g8 tmtsoftware/csw.g8 --branch master --name=galil --csw_version=${{ csw_version }}
+          cd galil
           sbt clean test
 
       - name: Notify slack
