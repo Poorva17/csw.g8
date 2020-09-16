@@ -45,7 +45,7 @@ jobs:
 
       - name: Giter8 Compile
         run: |
-          g8 tmtsoftware/csw.g8 --branch master --name=galil --csw_version=${{ csw_version }}
+          g8 tmtsoftware/csw.g8 --branch master --name=galil --csw_version=${{ CSW_VERSION }}
           cd galil
           sbt clean test
 
