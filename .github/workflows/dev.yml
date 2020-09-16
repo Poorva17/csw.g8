@@ -2,7 +2,7 @@ name: giter8
 
 on:
   push:
-    branches: [master, dev]
+    branches: [dev]
 
   schedule:
     - cron: "30 18 * * *" # run at 00:00 AM IST
@@ -40,9 +40,22 @@ jobs:
       - name: Publish Local
         run: sbt clean publishLocal
 
+      - name: Install CS native
+        run: |
+          curl -fLo cs https://git.io/coursier-cli-linux
+          chmod +x cs
+          sudo mv cs /usr/local/bin
+
+      - name: Install giter8
+        run: |
+          cs install giter8
+          sudo mv /home/runner/.local/share/coursier/bin/g8 /usr/local/bin
+          cd /usr/local/bin
+          chmod +x g8
+
       - name: Giter8 Compile
         run: |
-          sbt new tmtsoftware/csw.g8 --branch dev --name=galil --csw_version='0.1.0-SNAPSHOT' 
+          g8 tmtsoftware/csw.g8 --branch dev --name=galil --csw_version='0.1.0-SNAPSHOT'
           cd galil 
           sbt clean test
 
