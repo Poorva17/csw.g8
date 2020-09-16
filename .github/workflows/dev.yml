@@ -1,8 +1,8 @@
-name: giter8
+name: Dev
 
 on:
   push:
-    branches: [master, dev]
+    branches: [dev]
 
   schedule:
     - cron: "30 18 * * *" # run at 00:00 AM IST
@@ -17,17 +17,45 @@ jobs:
         with:
           repository: tmtsoftware/csw
 
-      - uses: olafurpg/setup-scala@v7
+      - uses: olafurpg/setup-scala@v5
         with:
           java-version: adopt@1.11
-      - uses: coursier/cache-action@v3
+
+      - name: Cache ~/.cache
+        uses: actions/cache@v1
+        with:
+          path: ~/.cache
+          key: ${{ runner.os }}-coursier-${{ hashFiles('project/Libs.scala') }}
+          restore-keys: |
+            ${{ runner.os }}-coursier-
+
+      - name: Cache ~/.sbt
+        uses: actions/cache@v1
+        with:
+          path: ~/.sbt
+          key: ${{ runner.os }}-sbt-${{ hashFiles('project/build.properties') }}
+          restore-keys: |
+            ${{ runner.os }}-sbt-
 
       - name: Publish Local
         run: sbt clean publishLocal
 
+      - name: Install CS native
+        run: |
+          curl -fLo cs https://git.io/coursier-cli-linux
+          chmod +x cs
+          sudo mv cs /usr/local/bin
+
+      - name: Install giter8
+        run: |
+          cs install giter8
+          sudo mv /home/runner/.local/share/coursier/bin/g8 /usr/local/bin
+          cd /usr/local/bin
+          chmod +x g8
+
       - name: Giter8 Compile
         run: |
-          sbt new tmtsoftware/csw.g8 --branch dev --name=galil --csw_version='0.1.0-SNAPSHOT' 
+          g8 tmtsoftware/csw.g8 --branch dev --name=galil --csw_version='0.1.0-SNAPSHOT'
           cd galil 
           sbt clean test
 
