@@ -1,4 +1,4 @@
-# Giter8 Template for TMT
+# Giter8 Template for TMT 
 
 This is a Giter8 template for a TMT component developer which creates a sample `sbt` project for CSW Components.
 The created project contains three subprojects:
